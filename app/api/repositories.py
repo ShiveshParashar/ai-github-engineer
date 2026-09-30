@@ -25,8 +25,9 @@ def analyze_repository(request: RepositoryRequest):
         )
 
         analysis = run_repository_analysis(
-            repository_path
-        )
+            repository_path,
+            str(request.url)
+)
 
         return {
             "repository_url": str(request.url),
