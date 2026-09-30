@@ -1,0 +1,6 @@
+venvai/
+.env
+__pycache__/
+*.pyc
+repositories/
+reports/
