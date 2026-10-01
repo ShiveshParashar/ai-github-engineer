@@ -4,8 +4,13 @@ from app.agents.test_agent import test_agent
 from app.agents.ci_agent import ci_agent
 from app.agents.git_history_agent import git_history_agent
 
-from app.services.report_service import build_engineering_report
-from app.services.report_storage import save_report
+from app.services.report_service import (
+    build_engineering_report
+)
+
+from app.services.report_storage import (
+    save_report
+)
 
 
 def run_repository_analysis(
@@ -13,38 +18,59 @@ def run_repository_analysis(
     repository_url: str
 ):
 
-    # Repository analysis
+    # -----------------------------------------
+    # 1. Repository analysis
+    # -----------------------------------------
+
     repository_data = repository_agent(
         repository_path
     )
 
-    # Dependency analysis
+    # -----------------------------------------
+    # 2. Dependency analysis
+    # -----------------------------------------
+
     dependency_data = dependency_agent(
         repository_path
     )
 
-    # Test analysis
+    # -----------------------------------------
+    # 3. Test analysis
+    # -----------------------------------------
+
     test_data = test_agent(
         repository_path
     )
 
-    # CI/CD analysis
+    # -----------------------------------------
+    # 4. CI/CD analysis
+    # -----------------------------------------
+
     ci_data = ci_agent(
         repository_path
     )
 
-    # Git history analysis
+    # -----------------------------------------
+    # 5. Git history analysis
+    # -----------------------------------------
+
     git_history_data = git_history_agent(
         repository_path
     )
 
-    # Security analysis
+    # -----------------------------------------
+    # 6. Security analysis
+    # -----------------------------------------
+
     security_data = {
         "status": "completed",
         "findings": []
     }
 
-    # Build unified engineering report
+    # -----------------------------------------
+    # 7. Build unified report
+    # -----------------------------------------
+
     report = build_engineering_report(
         repository_url=repository_url,
         repository_analysis=repository_data,
@@ -55,18 +81,31 @@ def run_repository_analysis(
         git_history_analysis=git_history_data
     )
 
-    # Get repository name
-    repository_name = repository_path.rstrip(
-        "/"
-    ).split("/")[-1]
+    # -----------------------------------------
+    # 8. Repository name
+    # -----------------------------------------
 
-    # Save report
+    repository_name = (
+        repository_path
+        .rstrip("/")
+        .split("/")[-1]
+    )
+
+    # -----------------------------------------
+    # 9. Save report
+    # -----------------------------------------
+
     report_path = save_report(
         report,
         repository_name
     )
 
-    # Add report file path to response
-    report["report_metadata"]["file"] = report_path
+    # -----------------------------------------
+    # 10. Add report path
+    # -----------------------------------------
+
+    report["report_metadata"]["file"] = (
+        report_path
+    )
 
     return report

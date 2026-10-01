@@ -1,4 +1,6 @@
 from datetime import datetime
+
+
 def calculate_health_summary(
     test_analysis: dict,
     ci_analysis: dict,
@@ -7,21 +9,43 @@ def calculate_health_summary(
 
     score = 100
 
+    # -----------------------------------------
     # Tests
-    if not test_analysis.get("tests_detected", False):
+    # -----------------------------------------
+
+    if not test_analysis.get(
+        "tests_detected",
+        False
+    ):
+
         score -= 15
 
-    elif test_analysis.get("status") == "FAILED":
+    elif test_analysis.get(
+        "status"
+    ) == "FAILED":
+
         score -= 20
 
+    # -----------------------------------------
     # CI/CD
-    if not ci_analysis.get("ci_found", False):
+    # -----------------------------------------
+
+    if not ci_analysis.get(
+        "ci_found",
+        False
+    ):
+
         score -= 15
 
+    # -----------------------------------------
     # Security
-    security_findings = security_analysis.get(
-        "findings",
-        []
+    # -----------------------------------------
+
+    security_findings = (
+        security_analysis.get(
+            "findings",
+            []
+        )
     )
 
     critical_count = sum(
@@ -39,24 +63,33 @@ def calculate_health_summary(
     score -= critical_count * 15
     score -= high_count * 8
 
-    score = max(0, score)
+    score = max(
+        0,
+        score
+    )
 
     return {
         "score": score,
+
         "tests": test_analysis.get(
             "status",
             "UNKNOWN"
         ),
+
         "ci_cd": (
             "FOUND"
             if ci_analysis.get("ci_found")
             else "NOT_FOUND"
         ),
-        "critical_security_findings": critical_count,
-        "high_security_findings": high_count
-    }
 
-from datetime import datetime
+        "critical_security_findings": (
+            critical_count
+        ),
+
+        "high_security_findings": (
+            high_count
+        )
+    }
 
 
 def build_engineering_report(
@@ -79,7 +112,9 @@ def build_engineering_report(
 
         "report_metadata": {
             "repository_url": repository_url,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": (
+                datetime.utcnow().isoformat()
+            ),
             "report_version": "1.0"
         },
 
