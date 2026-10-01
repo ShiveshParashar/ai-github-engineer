@@ -1,136 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI GitHub Engineer</title>
-    <!-- ?v=2 forces the browser to fetch the new files. Bump it on every change. -->
-    <link rel="stylesheet" href="/static/css/dashboard.css?v=2">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI GitHub Engineer</title>
+<link rel="stylesheet" href="/static/css/dashboard.css?v=3">
 </head>
 <body>
 <div class="app-shell">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="brand">
-            <span class="brand-mark">◆</span>
-            <span>GitHub Engineer</span>
+<aside class="sidebar">
+  <div class="brand"><span class="brand-mark">◆</span><span>GitHub Engineer</span></div>
+  <nav id="nav">
+    <a class="nav-item active" href="#overview">Overview</a>
+    <a class="nav-item" href="#repository">Repository</a>
+    <a class="nav-item" href="#languages">Languages</a>
+    <a class="nav-item" href="#git">Git Analysis</a>
+    <a class="nav-item" href="#structure">Structure</a>
+    <a class="nav-item" href="#tests">Testing</a>
+    <a class="nav-item" href="#cicd">CI/CD</a>
+  </nav>
+  <div class="sidebar-note">Repository analysis dashboard<br><span>Local analyzer</span></div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Repository Intelligence</p>
+      <h1>Repository Dashboard</h1>
+    </div>
+    <div class="top-actions">
+      <button id="theme-toggle" class="ghost" type="button" title="Toggle theme">🌓</button>
+      <div class="status-pill"><span class="dot"></span>Local analyzer</div>
+    </div>
+  </header>
+
+  <section class="search-card" id="overview">
+    <h2>Analyze a GitHub repository</h2>
+    <p>Paste a public repository URL to inspect Git, languages, testing and CI/CD.</p>
+    <form id="analyze-form">
+      <input id="repo-url" type="url" placeholder="https://github.com/owner/repository" required>
+      <button id="analyze-btn" type="submit">Analyze repository</button>
+    </form>
+    <div class="chips" id="history"></div>
+    <div id="error" class="error hidden"></div>
+  </section>
+
+  <section id="loading" class="loading hidden">
+    <span class="spinner"></span><span>Cloning and analyzing repository…</span>
+    <div class="skeletons"><i></i><i></i><i></i><i></i></div>
+  </section>
+
+  <section id="dashboard" class="hidden">
+
+    <div class="repo-heading" id="repository">
+      <div>
+        <p class="eyebrow">Repository</p>
+        <h2 id="repo-name">—</h2>
+        <a id="repo-url-display" href="#" target="_blank" rel="noreferrer">—</a>
+      </div>
+      <span id="ci-badge" class="badge">Not analyzed</span>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><span>Branch</span><strong id="stat-branch">—</strong></div>
+      <div class="stat-card"><span>Commits</span><strong id="stat-commits">—</strong></div>
+      <div class="stat-card"><span>Languages</span><strong id="stat-languages">—</strong></div>
+      <div class="stat-card"><span>Test files</span><strong id="stat-tests">—</strong></div>
+    </div>
+
+    <div class="grid two-col">
+      <section class="panel" id="languages">
+        <div class="panel-head"><h3>Languages</h3></div>
+        <div id="languages-content" class="content-list"></div>
+      </section>
+      <section class="panel" id="git">
+        <div class="panel-head">
+          <h3>Git analysis</h3>
+          <input id="commit-filter" class="mini" placeholder="Filter commits…">
         </div>
+        <div id="git-content" class="content-list"></div>
+      </section>
+    </div>
 
-        <nav>
-            <a class="nav-item active" href="#overview">Overview</a>
-            <a class="nav-item" href="#repository">Repository</a>
-            <a class="nav-item" href="#git">Git Analysis</a>
-            <a class="nav-item" href="#languages">Languages</a>
-            <a class="nav-item" href="#tests">Testing</a>
-            <a class="nav-item" href="#cicd">CI/CD</a>
-        </nav>
-
-        <div class="sidebar-note">
-            Repository analysis dashboard
-            <br>
-            <span>Local analyzer</span>
+    <div class="grid two-col">
+      <section class="panel" id="structure">
+        <div class="panel-head">
+          <h3>Project structure</h3>
+          <div class="mini-actions">
+            <input id="tree-filter" class="mini" placeholder="Filter files…">
+            <button class="ghost sm" id="expand-all" type="button">Expand</button>
+            <button class="ghost sm" id="collapse-all" type="button">Collapse</button>
+          </div>
         </div>
-    </aside>
+        <div id="structure-content" class="tree"></div>
+      </section>
+      <section class="panel" id="tests">
+        <div class="panel-head"><h3>Testing</h3></div>
+        <div id="tests-content" class="content-list"></div>
+      </section>
+    </div>
 
-    <!-- MAIN -->
-    <main class="main">
+    <section class="panel" id="cicd">
+      <div class="panel-head"><h3>CI/CD analysis</h3><span id="cicd-status" class="badge">—</span></div>
+      <div id="cicd-content" class="content-list"></div>
+    </section>
 
-        <header class="topbar">
-            <div>
-                <p class="eyebrow">Repository Intelligence</p>
-                <h1>Repository Dashboard</h1>
-            </div>
-            <div class="status-pill">
-                <span class="dot"></span>
-                Local analyzer
-            </div>
-        </header>
-
-        <!-- SEARCH -->
-        <section class="search-card" id="overview">
-            <div>
-                <h2>Analyze a GitHub repository</h2>
-                <p>
-                    Enter a public repository URL to inspect repository, Git,
-                    language, testing and CI/CD information.
-                </p>
-            </div>
-
-            <form id="analyze-form">
-                <input
-                    id="repo-url"
-                    type="url"
-                    placeholder="https://github.com/owner/repository"
-                    required
-                >
-                <button id="analyze-btn" type="submit">Analyze repository</button>
-            </form>
-
-            <div id="error" class="error hidden"></div>
-        </section>
-
-        <!-- LOADING -->
-        <section id="loading" class="loading hidden">
-            <span class="spinner"></span>
-            Analyzing repository…
-        </section>
-
-        <!-- DASHBOARD -->
-        <section id="dashboard" class="hidden">
-
-            <div class="repo-heading" id="repository">
-                <div>
-                    <p class="eyebrow">Repository</p>
-                    <h2 id="repo-name">—</h2>
-                    <a id="repo-url-display" href="#" target="_blank" rel="noreferrer">—</a>
-                </div>
-                <span id="ci-badge" class="badge">Not analyzed</span>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card"><span>Branch</span><strong id="stat-branch">—</strong></div>
-                <div class="stat-card"><span>Commits</span><strong id="stat-commits">—</strong></div>
-                <div class="stat-card"><span>Languages</span><strong id="stat-languages">—</strong></div>
-                <div class="stat-card"><span>Test files</span><strong id="stat-tests">—</strong></div>
-            </div>
-
-            <div class="grid two-col">
-                <section class="panel" id="languages">
-                    <div class="panel-head"><h3>Languages</h3></div>
-                    <div id="languages-content" class="content-list"></div>
-                </section>
-
-                <section class="panel" id="git">
-                    <div class="panel-head"><h3>Git analysis</h3></div>
-                    <div id="git-content" class="content-list"></div>
-                </section>
-            </div>
-
-            <div class="grid two-col">
-                <section class="panel">
-                    <div class="panel-head"><h3>Project structure</h3></div>
-                    <div id="structure-content" class="tree"></div>
-                </section>
-
-                <section class="panel" id="tests">
-                    <div class="panel-head"><h3>Testing</h3></div>
-                    <div id="tests-content" class="content-list"></div>
-                </section>
-            </div>
-
-            <section class="panel" id="cicd">
-                <div class="panel-head">
-                    <h3>CI/CD analysis</h3>
-                    <span id="cicd-status" class="badge">—</span>
-                </div>
-                <div id="cicd-content" class="content-list"></div>
-            </section>
-
-        </section>
-    </main>
+  </section>
+</main>
 </div>
-
-<script src="/static/js/dashboard.js?v=2"></script>
+<div id="toast" class="toast"></div>
+<script src="/static/js/dashboard.js?v=3"></script>
 </body>
 </html>
